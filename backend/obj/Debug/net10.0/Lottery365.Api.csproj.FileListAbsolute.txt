@@ -156,3 +156,4 @@
 /Users/barudo/tests/upwork-test-projects/lottery-365-fullstack-app/backend/bin/Debug/net10.0/tr/Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
 /Users/barudo/tests/upwork-test-projects/lottery-365-fullstack-app/backend/bin/Debug/net10.0/zh-Hans/Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
 /Users/barudo/tests/upwork-test-projects/lottery-365-fullstack-app/backend/bin/Debug/net10.0/zh-Hant/Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
+/Users/barudo/tests/upwork-test-projects/lottery-365-fullstack-app/backend/obj/Debug/net10.0/Lottery365.Api.sourcelink.json

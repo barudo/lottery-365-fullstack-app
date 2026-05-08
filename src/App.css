@@ -510,7 +510,7 @@
 
 .number-grid {
   display: grid;
-  grid-template-columns: repeat(9, minmax(0, 1fr));
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   max-width: 100%;
   width: max-content;
 }

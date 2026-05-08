@@ -457,6 +457,46 @@ app.MapPut("/api/me", async (
 .WithName("UpdateMe")
 .WithSummary("Updates the current logged-in user's profile.");
 
+app.MapGet("/api/users", async (
+    Lottery365DbContext dbContext,
+    IConfiguration configuration,
+    HttpContext httpContext,
+    CancellationToken cancellationToken) =>
+{
+    if (!IsAdminRequest(httpContext, configuration))
+    {
+        return Results.StatusCode(StatusCodes.Status403Forbidden);
+    }
+
+    try
+    {
+        await dbContext.Database.MigrateAsync(cancellationToken);
+
+        var players = await dbContext.Users
+            .AsNoTracking()
+            .Where(user => user.Role == UserRole.Player)
+            .OrderBy(user => user.FirstName)
+            .ThenBy(user => user.LastName)
+            .Select(user => new PlayerUserResponse(
+                user.FirstName,
+                user.LastName,
+                user.Email,
+                user.CreatedAt))
+            .ToListAsync(cancellationToken);
+
+        return Results.Ok(players);
+    }
+    catch (Exception exception) when (exception is SqlException || exception.InnerException is SqlException)
+    {
+        return Results.Problem(
+            detail: "SQL Server is unavailable. Check the DefaultConnection value and make sure the database server is running.",
+            statusCode: StatusCodes.Status503ServiceUnavailable,
+            title: "Database unavailable");
+    }
+})
+.WithName("GetUsers")
+.WithSummary("Gets all player users.");
+
 app.MapGet("/api/tickets", async (
     Lottery365DbContext dbContext,
     IConfiguration configuration,
@@ -548,6 +588,95 @@ app.MapGet("/api/tickets", async (
 })
 .WithName("GetTickets")
 .WithSummary("Gets current user's ticket history with draw numbers when available.");
+
+app.MapGet("/api/tickets/drawn", async (
+    Lottery365DbContext dbContext,
+    IConfiguration configuration,
+    HttpContext httpContext,
+    CancellationToken cancellationToken) =>
+{
+    if (!IsAdminRequest(httpContext, configuration))
+    {
+        return Results.StatusCode(StatusCodes.Status403Forbidden);
+    }
+
+    try
+    {
+        await dbContext.Database.MigrateAsync(cancellationToken);
+
+        var rounds = await dbContext.Rounds
+            .AsNoTracking()
+            .OrderByDescending(round => round.RoundNumber)
+            .Select(round => new
+            {
+                round.Id,
+                round.RoundNumber,
+                round.WinningNumber1,
+                round.WinningNumber2,
+                round.WinningNumber3,
+                round.WinningNumber4,
+                round.WinningNumber5,
+                round.WinningNumber6,
+                round.DrawnAt,
+            })
+            .ToListAsync(cancellationToken);
+
+        var winners = await (
+            from ticket in dbContext.Tickets.AsNoTracking()
+            join user in dbContext.Users.AsNoTracking()
+                on ticket.UserId equals user.Id
+            where ticket.DrawStatus == DrawStatus.Winner
+            orderby user.FirstName, user.LastName
+            select new
+            {
+                ticket.RoundId,
+                TicketId = ticket.Id,
+                UserId = user.Id,
+                user.FirstName,
+                user.LastName,
+                user.Email,
+            })
+            .ToListAsync(cancellationToken);
+
+        var winnersByRound = winners
+            .GroupBy(winner => winner.RoundId)
+            .ToDictionary(
+                group => group.Key,
+                group => group
+                    .Select(winner => new DrawWinnerResponse(
+                        winner.TicketId,
+                        winner.UserId,
+                        winner.FirstName,
+                        winner.LastName,
+                        winner.Email))
+                    .ToArray());
+
+        var response = rounds.Select(round => new DrawnTicketResponse(
+            round.Id,
+            round.RoundNumber,
+            [
+                round.WinningNumber1,
+                round.WinningNumber2,
+                round.WinningNumber3,
+                round.WinningNumber4,
+                round.WinningNumber5,
+                round.WinningNumber6,
+            ],
+            winnersByRound.GetValueOrDefault(round.RoundNumber, []),
+            round.DrawnAt));
+
+        return Results.Ok(response);
+    }
+    catch (Exception exception) when (exception is SqlException || exception.InnerException is SqlException)
+    {
+        return Results.Problem(
+            detail: "SQL Server is unavailable. Check the DefaultConnection value and make sure the database server is running.",
+            statusCode: StatusCodes.Status503ServiceUnavailable,
+            title: "Database unavailable");
+    }
+})
+.WithName("GetDrawnTickets")
+.WithSummary("Gets tickets from completed draws with player details and winner status.");
 
 app.Run();
 
@@ -890,6 +1019,26 @@ public sealed record TicketHistoryResponse(
     int[] Numbers,
     int[]? DrawNumbers,
     string DrawStatus,
+    DateTimeOffset CreatedAt);
+
+public sealed record DrawnTicketResponse(
+    Guid WheelId,
+    int WheelNumber,
+    int[] DrawNumbers,
+    IReadOnlyCollection<DrawWinnerResponse> Winners,
+    DateTimeOffset DrawnAt);
+
+public sealed record DrawWinnerResponse(
+    Guid TicketId,
+    Guid UserId,
+    string Name,
+    string Lastname,
+    string Email);
+
+public sealed record PlayerUserResponse(
+    string Name,
+    string Lastname,
+    string Email,
     DateTimeOffset CreatedAt);
 
 public sealed record DrawBroadcast(
