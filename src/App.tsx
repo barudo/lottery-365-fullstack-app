@@ -106,9 +106,7 @@ function App() {
   if (path === "/drawn-tickets") {
     return (
       <ProtectedRoute isAuthenticated={isAuthenticated} setPath={setPath}>
-        {isAdmin ? (
-          <DrawnTicketsComponent isAdmin={true} onNavigate={navigate} onLogout={handleLogout} />
-        ) : null}
+        <DrawnTicketsComponent isAdmin={isAdmin} onNavigate={navigate} onLogout={handleLogout} />
       </ProtectedRoute>
     );
   }

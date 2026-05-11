@@ -595,9 +595,9 @@ app.MapGet("/api/tickets/drawn", async (
     HttpContext httpContext,
     CancellationToken cancellationToken) =>
 {
-    if (!IsAdminRequest(httpContext, configuration))
+    if (!TryGetAuthenticatedUserId(httpContext, configuration, out _))
     {
-        return Results.StatusCode(StatusCodes.Status403Forbidden);
+        return Results.Unauthorized();
     }
 
     try

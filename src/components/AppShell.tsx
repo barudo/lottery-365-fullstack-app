@@ -34,25 +34,21 @@ export function AppShell({
             DRAW
           </a>
           {isAdmin && (
-            <>
-              <a
-                aria-current={activePath === "/users" ? "page" : undefined}
-                href="/users"
-                onClick={onNavigate("/users")}
-              >
-                USERS
-              </a>
-              <a
-                aria-current={
-                  activePath === "/drawn-tickets" ? "page" : undefined
-                }
-                href="/drawn-tickets"
-                onClick={onNavigate("/drawn-tickets")}
-              >
-                DRAWN TICKETS
-              </a>
-            </>
+            <a
+              aria-current={activePath === "/users" ? "page" : undefined}
+              href="/users"
+              onClick={onNavigate("/users")}
+            >
+              USERS
+            </a>
           )}
+          <a
+            aria-current={activePath === "/drawn-tickets" ? "page" : undefined}
+            href="/drawn-tickets"
+            onClick={onNavigate("/drawn-tickets")}
+          >
+            DRAWN TICKETS
+          </a>
           <button type="button" onClick={onLogout}>
             LOGOUT
           </button>

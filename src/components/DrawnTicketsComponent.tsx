@@ -4,7 +4,7 @@ import { formatDateTime, formatNumbers, formatTicketId } from "../lib/format";
 import type { DrawnTicketResponse, ProtectedPageProps } from "../types";
 import { AppShell } from "./AppShell";
 
-export function DrawnTicketsComponent({ onLogout, onNavigate }: ProtectedPageProps) {
+export function DrawnTicketsComponent({ isAdmin, onLogout, onNavigate }: ProtectedPageProps) {
   const [tickets, setTickets] = useState<DrawnTicketResponse[]>([]);
   const [message, setMessage] = useState("Loading drawn tickets...");
 
@@ -36,7 +36,7 @@ export function DrawnTicketsComponent({ onLogout, onNavigate }: ProtectedPagePro
   }, []);
 
   return (
-    <AppShell activePath="/drawn-tickets" isAdmin={true} onLogout={onLogout} onNavigate={onNavigate}>
+    <AppShell activePath="/drawn-tickets" isAdmin={isAdmin} onLogout={onLogout} onNavigate={onNavigate}>
       <section className="profile-page">
         <h2 className="profile-table-title">DRAWN TICKETS</h2>
         {message ? (
