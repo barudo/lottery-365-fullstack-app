@@ -61,7 +61,9 @@ The requested application should include:
 
 - Open `http://localhost:5173` in your browser.
 - Register a new account or log in.
-- For admin access, use the admin user created by migrations.
+- For admin access, use the admin user created by migrations:
+  - Email: `admin@lottery365.local`
+  - Password: `Admin123!`
 
 ## User Roles
 

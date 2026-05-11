@@ -692,17 +692,20 @@
 
 @media (max-width: 720px) {
   .login-page {
-    padding: 20px 16px;
+    align-items: flex-start;
+    padding: 28px 18px;
   }
 
   .login-card {
-    border-radius: 14px;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
     min-height: auto;
-    padding: 42px 28px 44px;
+    padding: 34px 0 42px;
   }
 
   .registration-card {
-    padding: 42px 28px;
+    padding: 34px 0 42px;
   }
 
   .login-header {
@@ -718,7 +721,11 @@
   }
 
   .login-card button {
-    margin-top: 28px;
+    align-self: center;
+    font-size: 18px;
+    height: 54px;
+    margin-top: 34px;
+    max-width: 280px;
   }
 
   .app-page {
