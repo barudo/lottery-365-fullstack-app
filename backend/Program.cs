@@ -82,7 +82,7 @@ app.MapPost("/users", async (
 
     try
     {
-        await dbContext.Database.EnsureCreatedAsync(cancellationToken);
+        await dbContext.Database.MigrateAsync(cancellationToken);
 
         var emailExists = await dbContext.Users
             .AnyAsync(user => user.NormalizedEmail == normalizedEmail, cancellationToken);
@@ -145,7 +145,7 @@ app.MapPost("/api/auth/login", async (
 
     try
     {
-        await dbContext.Database.EnsureCreatedAsync(cancellationToken);
+        await dbContext.Database.MigrateAsync(cancellationToken);
 
         var user = await dbContext.Users
             .AsNoTracking()
